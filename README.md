@@ -50,7 +50,7 @@ A Firefox browser extension that extracts YouTube video transcripts and generate
    - Go to any YouTube video with captions
    - Click the extension icon
    - Click "Get Summary"
-   - Done! 🎉
+   - Done! 
 
 ---
 
@@ -406,6 +406,17 @@ Contributions welcome! Feel free to:
 - [ ] Dark mode
 
 ---
+
+## Screenshots
+
+### Configuration
+![Configuration](screenshots/screenshot-config.png)
+
+### Summary Display
+![Summary](screenshots/screenshot-summary.png)
+
+### Model Selection
+![Models](screenshots/screenshot-models.png)
 
 ## Changelog
 

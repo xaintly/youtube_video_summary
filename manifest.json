@@ -1,8 +1,17 @@
 {
   "manifest_version": 3,
   "name": "YouTube Claude Summary",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Extract YouTube video transcripts and generate summaries using Claude AI",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "youtube-claude-summary@anthropic-community.org",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [ "authenticationInfo" ]
+      }
+    }
+  },
   "permissions": [
     "storage",
     "activeTab",

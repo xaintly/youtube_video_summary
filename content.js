@@ -159,11 +159,11 @@ async function getTranscriptFromButton() {
   return transcript.trim();
 }
 
-// Helper function to decode HTML entities
+// Helper function to decode HTML entities (safe method)
 function decodeHTMLEntities(text) {
-  const textarea = document.createElement('textarea');
-  textarea.innerHTML = text;
-  return textarea.value;
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text, 'text/html');
+  return doc.documentElement.textContent;
 }
 
 // Get video title
