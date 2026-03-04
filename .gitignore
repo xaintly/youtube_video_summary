@@ -1,0 +1,36 @@
+# Node modules (if any build tools are added)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+*.xpi
+*.zip
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Screenshots (add these manually when ready)
+# Uncomment the line below if you want to exclude screenshots initially
+# screenshots/

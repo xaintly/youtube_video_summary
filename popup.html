@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Claude Summary</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>YouTube Claude Summary</h1>
+        <button id="closePopup" class="close-btn" title="Close">✕</button>
+      </div>
+    </header>
+
+    <!-- API Key Configuration -->
+    <div id="apiKeySection" class="section">
+      <div id="apiKeyCollapsed" class="hidden">
+        <div class="api-key-status-bar">
+          <span class="status-text">
+            <span class="status-icon">🔑</span>
+            <span>API Key Configured</span>
+            <span class="model-badge" id="modelBadgeCollapsed">Sonnet 4</span>
+          </span>
+          <button id="editApiKey" class="btn-link">Edit</button>
+        </div>
+      </div>
+      
+      <div id="apiKeyExpanded">
+        <h3>⚙️ Configuration</h3>
+        <div class="input-group">
+          <label for="apiKeyInput">Anthropic API Key:</label>
+          <div class="key-input-wrapper">
+            <input 
+              type="password" 
+              id="apiKeyInput" 
+              placeholder="sk-ant-..."
+              autocomplete="off"
+            >
+            <button id="toggleKeyVisibility" class="icon-btn" title="Show/Hide API Key">👁️</button>
+          </div>
+          <small>
+            <a href="https://console.anthropic.com/settings/keys" target="_blank">Get your API key</a>
+          </small>
+        </div>
+        
+        <div class="input-group">
+          <label for="modelSelect">Claude Model:</label>
+          <select id="modelSelect" class="model-select">
+            <option value="claude-haiku-4-5-20251001">Haiku 4 (Fastest, Cheapest)</option>
+            <option value="claude-sonnet-4-20250514" selected>Sonnet 4 (Balanced) ⭐</option>
+            <option value="claude-opus-4-5-20251101">Opus 4 (Highest Quality)</option>
+          </select>
+          <small class="model-info">
+            <span id="modelCostInfo">Sonnet 4: ~$0.03 per 30-min video</span>
+          </small>
+        </div>
+        
+        <button id="saveApiKey" class="btn btn-primary">Save Settings</button>
+        <div id="apiKeyStatus" class="status"></div>
+      </div>
+    </div>
+
+    <!-- Video Info -->
+    <div id="videoInfo" class="section hidden">
+      <h3>Video</h3>
+      <div id="videoTitle" class="video-title"></div>
+    </div>
+
+    <!-- Summary Section -->
+    <div id="summarySection" class="section">
+      <button id="getSummary" class="btn btn-action" disabled>
+        Get Summary
+      </button>
+      
+      <div id="loadingIndicator" class="loading hidden">
+        <div class="spinner"></div>
+        <p>Extracting transcript and generating summary...</p>
+      </div>
+
+      <div id="error" class="error hidden"></div>
+
+      <div id="summaryResult" class="summary-result hidden">
+        <div class="summary-header">
+          <h3>Summary</h3>
+          <button id="copySummary" class="btn btn-small">Copy</button>
+        </div>
+        <div id="summaryText" class="summary-text"></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div id="stats" class="stats hidden">
+      <small>
+        <span id="transcriptLength"></span>
+      </small>
+    </div>
+
+    <footer>
+      <small>Powered by Claude AI | <a href="https://github.com/xaintly/youtube_video_summary" target="_blank">GitHub</a></small>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
