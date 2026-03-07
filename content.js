@@ -96,7 +96,12 @@ async function getTranscript() {
     try {
       return await getTranscriptFromButton();
     } catch (fallbackError) {
-      throw new Error(`Failed to get transcript: ${error.message}. Fallback also failed: ${fallbackError.message}`);
+      // Method 3: Try alternate transcript format in #secondary element
+      try {
+        return await getTranscriptFromSecondary();
+      } catch (secondaryError) {
+        throw new Error(`Failed to get transcript: ${error.message}. Fallback 1 failed: ${fallbackError.message}. Fallback 2 failed: ${secondaryError.message}`);
+      }
     }
   }
 }
@@ -154,6 +159,89 @@ async function getTranscriptFromButton() {
     if (textElement) {
       transcript += textElement.textContent.trim() + ' ';
     }
+  }
+
+  return transcript.trim();
+}
+
+// Fallback method 2: Extract from alternate transcript format in #secondary element
+async function getTranscriptFromSecondary() {
+  // Wait for page to be ready
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Find the secondary element
+  const secondaryElement = document.getElementById('secondary');
+  
+  if (!secondaryElement) {
+    throw new Error("Could not find #secondary element");
+  }
+
+  // Look for transcript container - try multiple possible selectors
+  let transcriptContainer = null;
+  
+  // Common patterns for transcript containers
+  const selectors = [
+    'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-transcript"]',
+	'div.ytd-item-section-renderer[id="contents"]',
+	'ytd-engagement-panel-section-list-renderer',
+    'ytd-transcript-renderer',
+    '[id*="transcript"]',
+    'ytd-engagement-panel-section-list-renderer'
+  ];
+  
+  for (const selector of selectors) {
+    transcriptContainer = secondaryElement.querySelector(selector);
+    if (transcriptContainer) break;
+  }
+  
+  if (!transcriptContainer) {
+    // If no specific container found, use the secondary element itself
+    transcriptContainer = secondaryElement;
+  }
+
+  // Extract all text from divs, filtering out timestamps
+  // Timestamps are usually in format like "0:00", "1:23", "10:45"
+  const timestampPattern = /^\d{1,2}:\d{2}$/;
+  
+  // Get all divs that might contain transcript text
+  const allDivs = transcriptContainer.querySelectorAll('div');
+  let transcript = '';
+  let processedText = new Set(); // Avoid duplicates
+  
+  for (const div of allDivs) {
+    // Get direct text content (not including nested elements)
+    const text = div.textContent.trim();
+    
+    // Skip if:
+    // - Empty
+    // - Is a timestamp
+    // - Already processed (avoid duplicates from nested divs)
+    // - Too short (likely UI element)
+    if (!text || 
+        timestampPattern.test(text) || 
+        processedText.has(text) || 
+        text.length < 3) {
+      continue;
+    }
+    
+    // Check if this div has only text content (no significant child elements)
+    // This helps us get leaf nodes with actual transcript text
+    const childDivs = div.querySelectorAll('div');
+    const hasSignificantChildren = childDivs.length > 0 && 
+                                   Array.from(childDivs).some(child => child.textContent.trim().length > 10);
+    
+    if (!hasSignificantChildren) {
+      // This appears to be a text-containing div
+      const cleanText = text.replace(timestampPattern, '').trim();
+      if (cleanText.length > 3) {
+        transcript += cleanText + ' ';
+        processedText.add(text);
+      }
+    }
+  }
+
+  if (!transcript.trim()) {
+    throw new Error("Could not extract transcript from #secondary element - no text found");
   }
 
   return transcript.trim();

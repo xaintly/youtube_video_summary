@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.2.1 - March 7, 2026
+
+### Improvements
+- Added handling for alternate youtube transcript style
+
+---
+
 ## Version 1.2.0 - February 14, 2026
 
 ### New Features
