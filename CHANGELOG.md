@@ -1,9 +1,9 @@
 # Changelog
 
-## Version 1.2.1 - March 7, 2026
+## Version 1.2.2 - April 17, 2026
 
-### Improvements
-- Added handling for alternate youtube transcript style
+### Technical Changes
+- Added support for multiple alternate transcript formats
 
 ---
 
