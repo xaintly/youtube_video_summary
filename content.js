@@ -176,12 +176,10 @@ async function getTranscriptFromSecondary() {
     throw new Error("Could not find #secondary element");
   }
 
-  // Look for transcript container - try multiple possible selectors
-  let transcriptContainer = null;
-  
   // Common patterns for transcript containers
   const selectors = [
     'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-transcript"]',
+	'ytd-item-section-renderer',
 	'div.ytd-item-section-renderer[id="contents"]',
 	'ytd-engagement-panel-section-list-renderer',
     'ytd-transcript-renderer',
@@ -189,61 +187,63 @@ async function getTranscriptFromSecondary() {
     'ytd-engagement-panel-section-list-renderer'
   ];
   
-  for (const selector of selectors) {
-    transcriptContainer = secondaryElement.querySelector(selector);
-    if (transcriptContainer) break;
-  }
+  // YouTube has a lot of different styles and patterns for transcript containers, sometimes multiple with the same ID
+  let transcriptContainers = secondaryElement.querySelectorAll(selectors.join(','));
+
   
-  if (!transcriptContainer) {
+  if (!transcriptContainers.length) {
     // If no specific container found, use the secondary element itself
-    transcriptContainer = secondaryElement;
+    transcriptContainers = [ secondaryElement ];
   }
 
   // Extract all text from divs, filtering out timestamps
   // Timestamps are usually in format like "0:00", "1:23", "10:45"
   const timestampPattern = /^\d{1,2}:\d{2}$/;
-  
-  // Get all divs that might contain transcript text
-  const allDivs = transcriptContainer.querySelectorAll('div');
   let transcript = '';
-  let processedText = new Set(); // Avoid duplicates
+  let processedText = new Set(); // Avoid duplicates  
   
-  for (const div of allDivs) {
-    // Get direct text content (not including nested elements)
-    const text = div.textContent.trim();
-    
-    // Skip if:
-    // - Empty
-    // - Is a timestamp
-    // - Already processed (avoid duplicates from nested divs)
-    // - Too short (likely UI element)
-    if (!text || 
-        timestampPattern.test(text) || 
-        processedText.has(text) || 
-        text.length < 3) {
-      continue;
-    }
-    
-    // Check if this div has only text content (no significant child elements)
-    // This helps us get leaf nodes with actual transcript text
-    const childDivs = div.querySelectorAll('div');
-    const hasSignificantChildren = childDivs.length > 0 && 
-                                   Array.from(childDivs).some(child => child.textContent.trim().length > 10);
-    
-    if (!hasSignificantChildren) {
-      // This appears to be a text-containing div
-      const cleanText = text.replace(timestampPattern, '').trim();
-      if (cleanText.length > 3) {
-        transcript += cleanText + ' ';
-        processedText.add(text);
-      }
-    }
+  for (const transcriptContainer of transcriptContainers) {
+  
+	  // Get all divs that might contain transcript text
+	  const allDivs = transcriptContainer.querySelectorAll('div, span');
+	  
+	  for (const div of allDivs) {
+		// Get direct text content (not including nested elements)
+		const text = div.textContent.trim();
+		
+		// Skip if:
+		// - Empty
+		// - Is a timestamp
+		// - Already processed (avoid duplicates from nested divs)
+		// - Too short (likely UI element)
+		if (!text || 
+			timestampPattern.test(text) || 
+			processedText.has(text) || 
+			text.length < 3) {
+		  continue;
+		}
+		
+		// Check if this div has only text content (no significant child elements)
+		// This helps us get leaf nodes with actual transcript text
+		const childDivs = div.querySelectorAll('div');
+		const hasSignificantChildren = childDivs.length > 0 && 
+									   Array.from(childDivs).some(child => child.textContent.trim().length > 10);
+		
+		if (!hasSignificantChildren) {
+		  // This appears to be a text-containing div
+		  const cleanText = text.replace(timestampPattern, '').trim();
+		  if (cleanText.length > 3) {
+			transcript += cleanText + ' ';
+			processedText.add(text);
+		  }
+		}
+	  }
   }
 
   if (!transcript.trim()) {
     throw new Error("Could not extract transcript from #secondary element - no text found");
   }
-
+  
   return transcript.trim();
 }
 
